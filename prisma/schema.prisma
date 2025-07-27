@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  user_id    Int           @id @default(autoincrement())
+  name       String
+  role       OfficerRole
+  station_id Int?
+  email      String        @unique
+  password   String
+  Crimes     Crimes[]      @relation("AssignedCrimes")
+  raisedBy   Escalations[] @relation("RaisedBy")
+  raisedTo   Escalations[] @relation("RaisedTo")
+  logs       Logs[]        @relation("PerformedBy")
+  acpOf      Stations[]    @relation("ACP")
+  piOf       Stations[]    @relation("PI")
+  station    Stations?     @relation(fields: [station_id], references: [station_id])
+
+  @@index([station_id], map: "Users_station_id_fkey")
+}
+
+model Stations {
+  station_id Int      @id @default(autoincrement())
+  name       String
+  area       String   // Area/Zone name for ACP jurisdiction
+  acp_id     Int?
+  pi_id      Int?
+  crimes     Crimes[]
+  acp        Users?   @relation("ACP", fields: [acp_id], references: [user_id])
+  pi         Users?   @relation("PI", fields: [pi_id], references: [user_id])
+  users      Users[]
+
+  @@index([acp_id], map: "Stations_acp_id_fkey")
+  @@index([pi_id], map: "Stations_pi_id_fkey")
+}
+
+model Crimes {
+  crime_id       Int           @id @default(autoincrement())
+  title          String
+  description    String
+  category       Category
+  station_id     Int
+  status         CrimeStatus
+  assigned_to_id Int
+  created_at     DateTime      @default(now())
+  crime_type_ids Json
+  assigned_to    Users         @relation("AssignedCrimes", fields: [assigned_to_id], references: [user_id])
+  station        Stations      @relation(fields: [station_id], references: [station_id])
+  escalations    Escalations[]
+  reminders      Reminders[]
+
+  @@index([assigned_to_id], map: "Crimes_assigned_to_id_fkey")
+  @@index([station_id], map: "Crimes_station_id_fkey")
+}
+
+model CrimeTypes {
+  crime_type_id   Int    @id @default(autoincrement())
+  heading         String
+  type            String
+  ipc_sections    String
+  resolution_days String
+}
+
+model Reminders {
+  reminder_id   Int          @id @default(autoincrement())
+  crime_id      Int
+  reminder_type ReminderType
+  reminder_date DateTime     @default(now())
+  crime         Crimes       @relation(fields: [crime_id], references: [crime_id])
+
+  @@unique([crime_id, reminder_type])
+}
+
+model Escalations {
+  escalation_id Int              @id @default(autoincrement())
+  crime_id      Int
+  reason        String
+  raised_by_id  Int
+  raised_to_id  Int
+  raised_at     DateTime         @default(now())
+  status        EscalationStatus @default(Pending)
+  crime         Crimes           @relation(fields: [crime_id], references: [crime_id])
+  raised_by     Users            @relation("RaisedBy", fields: [raised_by_id], references: [user_id])
+  raised_to     Users            @relation("RaisedTo", fields: [raised_to_id], references: [user_id])
+
+  @@index([crime_id], map: "Escalations_crime_id_fkey")
+  @@index([raised_by_id], map: "Escalations_raised_by_id_fkey")
+  @@index([raised_to_id], map: "Escalations_raised_to_id_fkey")
+}
+
+model Logs {
+  log_id          Int      @id @default(autoincrement())
+  action          String
+  description     String?
+  performed_by_id Int
+  timestamp       DateTime @default(now())
+  performed_by    Users    @relation("PerformedBy", fields: [performed_by_id], references: [user_id])
+
+  @@index([performed_by_id], map: "Logs_performed_by_id_fkey")
+}
+
+enum OfficerRole {
+  DCP
+  ACP
+  PI
+  Inspector
+  SubInspector
+}
+
+enum Category {
+  MINOR
+  MAJOR
+  MINOR_MAJOR
+}
+
+enum CrimeStatus {
+  Pending
+  Resolved
+  Overdue
+}
+
+enum ReminderType {
+  First
+  Second
+  Third
+}
+
+enum EscalationStatus {
+  Pending
+  Resolved
+  Overdue
+}
