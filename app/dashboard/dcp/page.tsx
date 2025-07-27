@@ -79,9 +79,9 @@ export default function DCPDashboard() {
       {/* Header */}
       <div className="bg-gray-900/50 backdrop-blur-sm border-b border-gray-800">
         <div className="flex justify-between items-center px-6 py-4">
-          <h1 className="text-2xl font-bold text-white">DCP Dashboard</h1>
+          <h1 className="text-2xl font-bold text-white">Dashboard</h1>
           <div className="flex items-center gap-4">
-            <span className="text-gray-300">Welcome, {user.name}</span>
+            <span className="text-gray-300">Welcome, DCP {user.name.includes('DCP') ? user.name.replace(/DCP\s+/g, '').replace(/\s+DCP/g, '') : user.name}</span>
             <button
               onClick={handleLogout}
               className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
