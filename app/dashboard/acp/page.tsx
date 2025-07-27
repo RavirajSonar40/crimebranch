@@ -7,6 +7,7 @@ import MonthlyTrendChart from '@/components/charts/MonthlyTrendChart';
 import CrimeTypeChart from '@/components/charts/CrimeTypeChart';
 import ReminderStatusChart from '@/components/charts/ReminderStatusChart';
 import CategoryTrendChart from '@/components/charts/CategoryTrendChart';
+import ElegantLoadingAnimation from '@/components/ElegantLoadingAnimation';
 
 export default function ACPDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -66,11 +67,7 @@ export default function ACPDashboard() {
   };
 
   if (!user || loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
-        <div className="text-white">Loading...</div>
-      </div>
-    );
+    return <ElegantLoadingAnimation text="ACP Dashboard" size="lg" />;
   }
 
   return (

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import ElegantLoadingAnimation from '@/components/ElegantLoadingAnimation';
 
 interface Case {
   crime_id: number;
@@ -126,11 +127,7 @@ export default function CasesPage() {
   };
 
   if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
-        <div className="text-white">Loading...</div>
-      </div>
-    );
+    return <ElegantLoadingAnimation text="Cases" size="md" />;
   }
 
   return (

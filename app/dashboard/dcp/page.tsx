@@ -11,6 +11,7 @@ import StationPerformanceChart from '@/components/charts/StationPerformanceChart
 import EscalationTrendChart from '@/components/charts/EscalationTrendChart';
 import ReminderStatusChart from '@/components/charts/ReminderStatusChart';
 import CategoryTrendChart from '@/components/charts/CategoryTrendChart';
+import ElegantLoadingAnimation from '@/components/ElegantLoadingAnimation';
 
 export default function DCPDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -70,11 +71,7 @@ export default function DCPDashboard() {
   };
 
   if (!user || loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center">
-        <div className="text-white">Loading...</div>
-      </div>
-    );
+    return <ElegantLoadingAnimation text="DCP Dashboard" size="lg" />;
   }
 
   return (
