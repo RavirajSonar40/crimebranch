@@ -109,6 +109,8 @@ export async function GET(request: NextRequest) {
 
     // Create a map to aggregate crime types properly
     const crimeTypeMap = new Map();
+    let unknownCount = 0;
+    let invalidIds = new Set();
     
     crimeTypeCounts.forEach(item => {
       try {
@@ -117,26 +119,42 @@ export async function GET(request: NextRequest) {
         
         ids.forEach(id => {
           const crimeType = crimeTypes.find(ct => ct.crime_type_id === id);
-          const typeName = crimeType?.type || 'Unknown';
-          
-          if (crimeTypeMap.has(typeName)) {
-            crimeTypeMap.set(typeName, crimeTypeMap.get(typeName) + item._count.crime_id);
+          if (crimeType) {
+            const typeName = crimeType.type;
+            if (crimeTypeMap.has(typeName)) {
+              crimeTypeMap.set(typeName, crimeTypeMap.get(typeName) + item._count.crime_id);
+            } else {
+              crimeTypeMap.set(typeName, item._count.crime_id);
+            }
           } else {
-            crimeTypeMap.set(typeName, item._count.crime_id);
+            // Log invalid crime type IDs for debugging
+            invalidIds.add(id);
+            unknownCount += item._count.crime_id;
           }
         });
       } catch (e) {
         // If parsing fails, treat as single ID
         const crimeType = crimeTypes.find(ct => ct.crime_type_id === item.crime_type_ids);
-        const typeName = crimeType?.type || 'Unknown';
-        
-        if (crimeTypeMap.has(typeName)) {
-          crimeTypeMap.set(typeName, crimeTypeMap.get(typeName) + item._count.crime_id);
+        if (crimeType) {
+          const typeName = crimeType.type;
+          if (crimeTypeMap.has(typeName)) {
+            crimeTypeMap.set(typeName, crimeTypeMap.get(typeName) + item._count.crime_id);
+          } else {
+            crimeTypeMap.set(typeName, item._count.crime_id);
+          }
         } else {
-          crimeTypeMap.set(typeName, item._count.crime_id);
+          // Log invalid crime type IDs for debugging
+          invalidIds.add(item.crime_type_ids);
+          unknownCount += item._count.crime_id;
         }
       }
     });
+
+    // Add Unknown category if there are invalid IDs
+    if (unknownCount > 0) {
+      crimeTypeMap.set('Unknown', unknownCount);
+      console.warn(`⚠️ Found ${unknownCount} crimes with invalid crime type IDs: ${Array.from(invalidIds).join(', ')}`);
+    }
 
     crimeTypeData = Array.from(crimeTypeMap.entries()).map(([type, count]) => ({
       type,

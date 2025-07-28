@@ -8,7 +8,7 @@ async function testCaseRegistration() {
     const caseData = {
       title: 'Test Case - Theft Investigation',
       description: 'This is a test case for the reminder system',
-      crime_type_ids: [1, 2], // Assuming these crime type IDs exist
+      crime_type_ids: [41, 57], // Using valid crime type IDs (Assault and Bribery)
       complainant_name: 'John Doe',
       complainant_phone: '1234567890',
       complainant_address: '123 Test Street',
