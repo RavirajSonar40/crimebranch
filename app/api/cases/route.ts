@@ -114,7 +114,20 @@ export async function GET(request: NextRequest) {
       created_at: caseItem.created_at,
       station_id: caseItem.station_id,
       station_name: caseItem.station?.name || 'Unknown Station',
-      assigned_to_name: caseItem.assigned_to?.name || 'Unassigned'
+      assigned_to_name: caseItem.assigned_to?.name || 'Unassigned',
+      // Complainant Details
+      complainant_name: (caseItem as any).complainant_name,
+      complainant_phone: (caseItem as any).complainant_phone,
+      complainant_address: (caseItem as any).complainant_address,
+      // Incident Details
+      incident_date: (caseItem as any).incident_date,
+      incident_location: (caseItem as any).incident_location,
+      // Case Details
+      evidence_details: (caseItem as any).evidence_details,
+      witness_details: (caseItem as any).witness_details,
+      suspect_details: (caseItem as any).suspect_details,
+      case_priority: (caseItem as any).case_priority,
+      resolution_days: (caseItem as any).resolution_days
     }));
 
     return NextResponse.json({
@@ -134,19 +147,85 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { title, description, category, station_id, assigned_to_id } = body;
+    const { 
+      title, 
+      description, 
+      crime_type_ids, 
+      complainant_name, 
+      complainant_phone, 
+      complainant_address, 
+      incident_date, 
+      incident_location, 
+      evidence_details, 
+      witness_details, 
+      suspect_details, 
+      case_priority, 
+      case_status, 
+      resolution_days,
+      pi_id, 
+      station_id
+    } = body;
+
+    // Ensure crime_type_ids is an array of numbers
+    const crimeTypeIds = Array.isArray(crime_type_ids) ? crime_type_ids.map(id => parseInt(id.toString())) : [];
 
     const newCase = await prisma.crimes.create({
       data: {
         title,
         description,
-        category,
-        station_id,
-        assigned_to_id,
-        status: 'Pending',
-        crime_type_ids: []
+        category: 'MAJOR', // Default category
+        station_id: parseInt(station_id),
+        assigned_to_id: parseInt(pi_id),
+        status: case_status || 'Pending',
+        crime_type_ids: crimeTypeIds,
+        
+        // Complainant Details
+        complainant_name: complainant_name || null,
+        complainant_phone: complainant_phone || null,
+        complainant_address: complainant_address || null,
+        
+        // Incident Details
+        incident_date: incident_date ? new Date(incident_date) : null,
+        incident_location: incident_location || null,
+        
+        // Case Details
+        evidence_details: evidence_details || null,
+        witness_details: witness_details || null,
+        suspect_details: suspect_details || null,
+        case_priority: case_priority || 'Medium',
+        resolution_days: resolution_days || 1
       }
     });
+
+    // Send email notification to the assigned PI
+    try {
+      const notificationData = {
+        crimeId: newCase.crime_id,
+        piId: parseInt(pi_id),
+        caseTitle: title,
+        caseDescription: description,
+        priority: case_priority || 'Medium',
+        resolutionDays: resolution_days || 1
+      };
+
+      // Send notification email
+      const notificationResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/email/notification`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(notificationData)
+      });
+
+      if (notificationResponse.ok) {
+        console.log('Case notification email sent successfully');
+      } else {
+        console.log('Failed to send case notification email');
+      }
+    } catch (emailError) {
+      console.error('Error sending case notification email:', emailError);
+      // Don't fail the case creation if email fails
+    }
 
     return NextResponse.json({
       message: 'Case created successfully',

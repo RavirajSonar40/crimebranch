@@ -11,6 +11,21 @@ interface CrimeTypeChartProps {
 }
 
 export default function CrimeTypeChart({ data }: CrimeTypeChartProps) {
+  // Handle empty or invalid data
+  if (!data || data.length === 0) {
+    return (
+      <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800">
+        <h3 className="text-xl font-semibold text-white mb-4">Crime Type Distribution</h3>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="text-gray-400 text-lg mb-2">No crime type data available</div>
+            <div className="text-gray-500 text-sm">Crime type distribution will appear here when available</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800">
       <h3 className="text-xl font-semibold text-white mb-4">Crime Type Distribution</h3>

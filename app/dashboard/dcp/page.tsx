@@ -74,6 +74,9 @@ export default function DCPDashboard() {
     return <ElegantLoadingAnimation text="DCP Dashboard" size="lg" />;
   }
 
+  // Show loading for chart data
+  const isChartDataLoading = Object.keys(chartData).length === 0;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
       {/* Header */}
@@ -176,65 +179,88 @@ export default function DCPDashboard() {
               </div>
 
               {/* Charts Section */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <CaseStatusChart 
-                  data={chartData.caseStatusData || [
-                    { name: 'Pending', value: 0, color: '#f59e0b' },
-                    { name: 'Resolved', value: 0, color: '#10b981' },
-                    { name: 'Overdue', value: 0, color: '#ef4444' },
-                  ]} 
-                />
-                
-                <MonthlyTrendChart 
-                  data={chartData.monthlyTrendData || [
-                    { month: 'Jan', cases: 0, resolved: 0, escalations: 0 },
-                    { month: 'Feb', cases: 0, resolved: 0, escalations: 0 },
-                    { month: 'Mar', cases: 0, resolved: 0, escalations: 0 },
-                    { month: 'Apr', cases: 0, resolved: 0, escalations: 0 },
-                    { month: 'May', cases: 0, resolved: 0, escalations: 0 },
-                    { month: 'Jun', cases: 0, resolved: 0, escalations: 0 },
-                  ]} 
-                />
-              </div>
+              {isChartDataLoading ? (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800">
+                    <div className="flex items-center justify-center h-64">
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+                        <div className="text-white text-lg">Loading charts...</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800">
+                    <div className="flex items-center justify-center h-64">
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+                        <div className="text-white text-lg">Loading charts...</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <CaseStatusChart 
+                      data={chartData.caseStatusData || [
+                        { name: 'Pending', value: 0, color: '#f59e0b' },
+                        { name: 'Resolved', value: 0, color: '#10b981' },
+                        { name: 'Overdue', value: 0, color: '#ef4444' },
+                      ]} 
+                    />
+                    
+                    <MonthlyTrendChart 
+                      data={chartData.monthlyTrendData || [
+                        { month: 'Jan', cases: 0, resolved: 0, escalations: 0 },
+                        { month: 'Feb', cases: 0, resolved: 0, escalations: 0 },
+                        { month: 'Mar', cases: 0, resolved: 0, escalations: 0 },
+                        { month: 'Apr', cases: 0, resolved: 0, escalations: 0 },
+                        { month: 'May', cases: 0, resolved: 0, escalations: 0 },
+                        { month: 'Jun', cases: 0, resolved: 0, escalations: 0 },
+                      ]} 
+                    />
+                  </div>
 
-              <CrimeTypeChart 
-                data={chartData.crimeTypeData || [
-                  { type: 'No Data', count: 0, color: '#3b82f6' },
-                ]} 
-              />
+                  <CrimeTypeChart 
+                    data={chartData.crimeTypeData || [
+                      { type: 'No Data', count: 0, color: '#3b82f6' },
+                    ]} 
+                  />
 
-              {/* Station Performance Chart */}
-              <StationPerformanceChart 
-                data={chartData.stationPerformanceData || []} 
-              />
+                  {/* Station Performance Chart */}
+                  <StationPerformanceChart 
+                    data={chartData.stationPerformanceData || []} 
+                  />
 
-              {/* Escalation Trend Chart */}
-              <EscalationTrendChart 
-                data={chartData.escalationTrendData || []} 
-              />
+                  {/* Escalation Trend Chart */}
+                  <EscalationTrendChart 
+                    data={chartData.escalationTrendData || []} 
+                  />
 
-              {/* Reminder Status Chart */}
-              <ReminderStatusChart 
-                data={chartData.reminderStatusData || []} 
-              />
+                  {/* Reminder Status Chart */}
+                  <ReminderStatusChart 
+                    data={chartData.reminderStatusData || []} 
+                  />
 
-              {/* Category Trend Chart */}
-              <CategoryTrendChart 
-                data={chartData.categoryTrendData || []} 
-              />
+                  {/* Category Trend Chart */}
+                  <CategoryTrendChart 
+                    data={chartData.categoryTrendData || []} 
+                  />
 
-              {/* ACP Performance Comparison */}
-              {acpData.length > 0 && (
-                <ACPComparisonChart 
-                  data={acpData.map((acp: any) => ({
-                    acpName: acp.acp.name,
-                    totalCases: acp.performance.totalCases,
-                    resolvedCases: acp.performance.resolvedCases,
-                    pendingCases: acp.performance.pendingCases,
-                    overdueCases: acp.performance.overdueCases,
-                    resolutionRate: acp.performance.resolutionRate,
-                  }))} 
-                />
+                  {/* ACP Performance Comparison */}
+                  {acpData.length > 0 && (
+                    <ACPComparisonChart 
+                      data={acpData.map((acp: any) => ({
+                        acpName: acp.acp.name,
+                        totalCases: acp.performance.totalCases,
+                        resolvedCases: acp.performance.resolvedCases,
+                        pendingCases: acp.performance.pendingCases,
+                        overdueCases: acp.performance.overdueCases,
+                        resolutionRate: acp.performance.resolutionRate,
+                      }))} 
+                    />
+                  )}
+                </>
               )}
 
               <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800">

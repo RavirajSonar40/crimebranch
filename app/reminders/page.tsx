@@ -116,6 +116,11 @@ export default function RemindersPage() {
     return <ElegantLoadingAnimation text="Reminders" size="md" />;
   }
 
+  // Show loading for initial data fetch
+  if (loading && reminders.length === 0) {
+    return <ElegantLoadingAnimation text="Loading Reminders" size="md" />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black relative">
       {/* Full Screen Loading Overlay */}

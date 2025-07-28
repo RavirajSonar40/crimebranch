@@ -14,8 +14,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    let stations: any[] = [];
-    let acps: any[] = [];
+    let stations: { station_id: number; name: string }[] = [];
+    let acps: { user_id: number; name: string }[] = [];
 
     // Get stations based on role
     if (role === 'DCP') {

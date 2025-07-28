@@ -14,6 +14,21 @@ interface ReminderStatusChartProps {
 export default function ReminderStatusChart({ data }: ReminderStatusChartProps) {
   const COLORS = ['#3B82F6', '#F59E0B', '#EF4444'];
 
+  // Handle empty or invalid data
+  if (!data || data.length === 0) {
+    return (
+      <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800">
+        <h3 className="text-xl font-semibold text-white mb-4">Reminder Status Distribution</h3>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="text-gray-400 text-lg mb-2">No reminder data available</div>
+            <div className="text-gray-500 text-sm">Reminders will appear here when available</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800">
       <h3 className="text-xl font-semibold text-white mb-4">Reminder Status Distribution</h3>

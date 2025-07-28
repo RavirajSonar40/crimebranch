@@ -14,6 +14,19 @@ interface Case {
   station_id: number;
   station_name: string;
   assigned_to_name: string;
+  // Complainant Details
+  complainant_name?: string;
+  complainant_phone?: string;
+  complainant_address?: string;
+  // Incident Details
+  incident_date?: string;
+  incident_location?: string;
+  // Case Details
+  evidence_details?: string;
+  witness_details?: string;
+  suspect_details?: string;
+  case_priority?: string;
+  resolution_days?: number;
 }
 
 interface Station {
@@ -38,6 +51,8 @@ export default function CasesPage() {
   const [selectedStatus, setSelectedStatus] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [isSearching, setIsSearching] = useState(false);
+  const [selectedCase, setSelectedCase] = useState<Case | null>(null);
+  const [showCaseModal, setShowCaseModal] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -103,6 +118,16 @@ export default function CasesPage() {
     setSelectedCategory('');
   };
 
+  const handleCaseClick = (caseItem: Case) => {
+    setSelectedCase(caseItem);
+    setShowCaseModal(true);
+  };
+
+  const closeCaseModal = () => {
+    setShowCaseModal(false);
+    setSelectedCase(null);
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('user');
     router.push('/login');
@@ -128,6 +153,11 @@ export default function CasesPage() {
 
   if (!user) {
     return <ElegantLoadingAnimation text="Cases" size="md" />;
+  }
+
+  // Show loading for initial data fetch
+  if (loading && cases.length === 0) {
+    return <ElegantLoadingAnimation text="Loading Cases" size="md" />;
   }
 
   return (
@@ -367,7 +397,11 @@ export default function CasesPage() {
                     </thead>
                     <tbody className="bg-gray-900/30 divide-y divide-gray-800">
                       {cases.map((caseItem) => (
-                        <tr key={caseItem.crime_id} className="hover:bg-gray-800/50">
+                        <tr 
+                          key={caseItem.crime_id} 
+                          className="hover:bg-gray-800/50 cursor-pointer transition-colors duration-200"
+                          onClick={() => handleCaseClick(caseItem)}
+                        >
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                             #{caseItem.crime_id}
                           </td>
@@ -403,6 +437,235 @@ export default function CasesPage() {
           </div>
         </div>
       </div>
+
+      {/* Case Details Modal */}
+      {showCaseModal && selectedCase && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-800 w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            {/* Header */}
+            <div className="flex justify-between items-center p-6 border-b border-gray-800">
+              <div>
+                <h3 className="text-xl font-bold text-white">Case Details</h3>
+                <p className="text-gray-400 text-sm mt-1">Case #{selectedCase.crime_id}</p>
+              </div>
+              <button
+                onClick={closeCaseModal}
+                className="text-gray-400 hover:text-white text-2xl font-bold transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-800"
+              >
+                ×
+              </button>
+            </div>
+            
+            {/* Content */}
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+              <div className="space-y-6">
+                {/* Basic Information */}
+                <div className="space-y-4">
+                  <h4 className="text-sm font-semibold text-blue-400 uppercase tracking-wide">Basic Information</h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Case Title</label>
+                      <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white">
+                        {selectedCase.title}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Case ID</label>
+                      <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white">
+                        #{selectedCase.crime_id}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Description</label>
+                    <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white min-h-[60px]">
+                      {selectedCase.description || 'No description provided'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Complainant Information */}
+                <div className="space-y-4">
+                  <h4 className="text-sm font-semibold text-orange-400 uppercase tracking-wide">Complainant Information</h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Name</label>
+                      <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white">
+                        {selectedCase.complainant_name || 'Not provided'}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Phone</label>
+                      <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white">
+                        {selectedCase.complainant_phone || 'Not provided'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Address</label>
+                    <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white min-h-[60px]">
+                      {selectedCase.complainant_address || 'Not provided'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Incident Information */}
+                <div className="space-y-4">
+                  <h4 className="text-sm font-semibold text-red-400 uppercase tracking-wide">Incident Information</h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Incident Date</label>
+                      <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white">
+                        {selectedCase.incident_date ? new Date(selectedCase.incident_date).toLocaleDateString() : 'Not provided'}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Location</label>
+                      <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white">
+                        {selectedCase.incident_location || 'Not provided'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status and Category */}
+                <div className="space-y-4">
+                  <h4 className="text-sm font-semibold text-green-400 uppercase tracking-wide">Status & Category</h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Status</label>
+                      <div className="flex items-center">
+                        <span className={`inline-flex px-3 py-2 text-sm font-semibold rounded-lg ${getStatusColor(selectedCase.status)}`}>
+                          {selectedCase.status}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Category</label>
+                      <div className="flex items-center">
+                        <span className={`inline-flex px-3 py-2 text-sm font-semibold rounded-lg ${getCategoryColor(selectedCase.category)}`}>
+                          {selectedCase.category}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Created Date</label>
+                      <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white">
+                        {new Date(selectedCase.created_at).toLocaleDateString()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Assignment Information */}
+                <div className="space-y-4">
+                  <h4 className="text-sm font-semibold text-purple-400 uppercase tracking-wide">Assignment Information</h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Station</label>
+                      <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white">
+                        {selectedCase.station_name}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Assigned To</label>
+                      <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white">
+                        {selectedCase.assigned_to_name}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Case Details */}
+                <div className="space-y-4">
+                  <h4 className="text-sm font-semibold text-indigo-400 uppercase tracking-wide">Case Details</h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Priority</label>
+                      <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white">
+                        {selectedCase.case_priority || 'Not specified'}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Resolution Days</label>
+                      <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white">
+                        {selectedCase.resolution_days || 'Not specified'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Evidence Details</label>
+                    <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white min-h-[60px]">
+                      {selectedCase.evidence_details || 'Not provided'}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Witness Details</label>
+                    <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white min-h-[60px]">
+                      {selectedCase.witness_details || 'Not provided'}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-1">Suspect Details</label>
+                    <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white min-h-[60px]">
+                      {selectedCase.suspect_details || 'Not provided'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Additional Details */}
+                <div className="space-y-4">
+                  <h4 className="text-sm font-semibold text-yellow-400 uppercase tracking-wide">Additional Details</h4>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Station ID</label>
+                      <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white">
+                        {selectedCase.station_id}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Created At</label>
+                      <div className="bg-gray-800/50 border border-gray-700 rounded-lg px-3 py-2 text-white">
+                        {new Date(selectedCase.created_at).toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-800 bg-gray-900/50">
+              <button
+                onClick={closeCaseModal}
+                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors text-sm font-medium"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -123,6 +123,11 @@ export default function EscalationsPage() {
     return <ElegantLoadingAnimation text="Escalations" size="md" />;
   }
 
+  // Show loading for initial data fetch
+  if (loading && escalations.length === 0) {
+    return <ElegantLoadingAnimation text="Loading Escalations" size="md" />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black relative">
       {/* Full Screen Loading Overlay */}

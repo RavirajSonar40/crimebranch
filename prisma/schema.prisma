@@ -28,7 +28,6 @@ model Users {
 model Stations {
   station_id Int      @id @default(autoincrement())
   name       String
-  area       String   // Area/Zone name for ACP jurisdiction
   acp_id     Int?
   pi_id      Int?
   crimes     Crimes[]
@@ -50,6 +49,23 @@ model Crimes {
   assigned_to_id Int
   created_at     DateTime      @default(now())
   crime_type_ids Json
+  
+  // Complainant Details
+  complainant_name    String?
+  complainant_phone   String?
+  complainant_address String?
+  
+  // Incident Details
+  incident_date     DateTime?
+  incident_location String?
+  
+  // Case Details
+  evidence_details  String?
+  witness_details   String?
+  suspect_details   String?
+  case_priority     String?     @default("Medium")
+  resolution_days   Int?        @default(1)
+  
   assigned_to    Users         @relation("AssignedCrimes", fields: [assigned_to_id], references: [user_id])
   station        Stations      @relation(fields: [station_id], references: [station_id])
   escalations    Escalations[]

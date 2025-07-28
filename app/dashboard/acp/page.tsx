@@ -70,6 +70,9 @@ export default function ACPDashboard() {
     return <ElegantLoadingAnimation text="ACP Dashboard" size="lg" />;
   }
 
+  // Show loading for chart data
+  const isChartDataLoading = Object.keys(chartData).length === 0;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
       {/* Header */}
@@ -189,42 +192,65 @@ export default function ACPDashboard() {
               )}
 
               {/* Charts Section */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <CaseStatusChart 
-                  data={chartData.caseStatusData || [
-                    { name: 'Pending', value: 0, color: '#f59e0b' },
-                    { name: 'Resolved', value: 0, color: '#10b981' },
-                    { name: 'Overdue', value: 0, color: '#ef4444' },
-                  ]} 
-                />
-                
-                <MonthlyTrendChart 
-                  data={chartData.monthlyTrendData || [
-                    { month: 'Jan', cases: 0, resolved: 0, escalations: 0 },
-                    { month: 'Feb', cases: 0, resolved: 0, escalations: 0 },
-                    { month: 'Mar', cases: 0, resolved: 0, escalations: 0 },
-                    { month: 'Apr', cases: 0, resolved: 0, escalations: 0 },
-                    { month: 'May', cases: 0, resolved: 0, escalations: 0 },
-                    { month: 'Jun', cases: 0, resolved: 0, escalations: 0 },
-                  ]} 
-                />
-              </div>
+              {isChartDataLoading ? (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800">
+                    <div className="flex items-center justify-center h-64">
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+                        <div className="text-white text-lg">Loading charts...</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800">
+                    <div className="flex items-center justify-center h-64">
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+                        <div className="text-white text-lg">Loading charts...</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <CaseStatusChart 
+                      data={chartData.caseStatusData || [
+                        { name: 'Pending', value: 0, color: '#f59e0b' },
+                        { name: 'Resolved', value: 0, color: '#10b981' },
+                        { name: 'Overdue', value: 0, color: '#ef4444' },
+                      ]} 
+                    />
+                    
+                    <MonthlyTrendChart 
+                      data={chartData.monthlyTrendData || [
+                        { month: 'Jan', cases: 0, resolved: 0, escalations: 0 },
+                        { month: 'Feb', cases: 0, resolved: 0, escalations: 0 },
+                        { month: 'Mar', cases: 0, resolved: 0, escalations: 0 },
+                        { month: 'Apr', cases: 0, resolved: 0, escalations: 0 },
+                        { month: 'May', cases: 0, resolved: 0, escalations: 0 },
+                        { month: 'Jun', cases: 0, resolved: 0, escalations: 0 },
+                      ]} 
+                    />
+                  </div>
 
-              <CrimeTypeChart 
-                data={chartData.crimeTypeData || [
-                  { type: 'No Data', count: 0, color: '#3b82f6' },
-                ]} 
-              />
+                  <CrimeTypeChart 
+                    data={chartData.crimeTypeData || [
+                      { type: 'No Data', count: 0, color: '#3b82f6' },
+                    ]} 
+                  />
 
-              {/* Reminder Status Chart */}
-              <ReminderStatusChart 
-                data={chartData.reminderStatusData || []} 
-              />
+                  {/* Reminder Status Chart */}
+                  <ReminderStatusChart 
+                    data={chartData.reminderStatusData || []} 
+                  />
 
-              {/* Category Trend Chart */}
-              <CategoryTrendChart 
-                data={chartData.categoryTrendData || []} 
-              />
+                  {/* Category Trend Chart */}
+                  <CategoryTrendChart 
+                    data={chartData.categoryTrendData || []} 
+                  />
+                </>
+              )}
 
               <div className="bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800">
                 <h3 className="text-xl font-semibold text-white mb-4">Your Jurisdiction Information</h3>
